@@ -13,7 +13,6 @@ phases:
     commands:
       - echo "Building the Docker image..."
       # Navigate into your NestJS folder before building
-      - cd nest-app 
       - docker build -t $ECR_REPO_URL:latest .
       - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$IMAGE_TAG
 
