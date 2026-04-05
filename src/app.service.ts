@@ -546,7 +546,7 @@ export class AppService {
 
           <h1>
             <span class="gradient-text">Hello World!</span><br />
-            Reimagined.
+            FROM GREEN.
           </h1>
 
           <p class="subtitle">
@@ -574,7 +574,7 @@ export class AppService {
             <div class="mini-grid">
               <div class="mini-card">
                 <div class="mini-label">Environment</div>
-                <div class="mini-value">Production</div>
+                <div class="mini-value">GREEN</div>
               </div>
 
               <div class="mini-card">
