@@ -5,14 +5,12 @@ phases:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
-      # Create a unique tag using the Git commit hash or timestamp
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - if [ -z "$IMAGE_TAG" ]; then IMAGE_TAG="latest"; fi
 
   build:
     commands:
       - echo "Building the Docker image..."
-      # Navigate into your NestJS folder before building
       - docker build -t $ECR_REPO_URL:latest .
       - docker tag $ECR_REPO_URL:latest $ECR_REPO_URL:$IMAGE_TAG
 
@@ -23,7 +21,6 @@ phases:
       - docker push $ECR_REPO_URL:$IMAGE_TAG
       
       - echo "Creating Dockerrun.aws.json manifest..."
-      # Notice the ContainerPort is 3000 to match NestJS
       - |
         printf '{"AWSEBDockerrunVersion":"1","Image":{"Name":"%s","Update":"true"},"Ports":[{"ContainerPort":3000}]}' $ECR_REPO_URL:$IMAGE_TAG > Dockerrun.aws.json
       
@@ -33,7 +30,8 @@ phases:
       
       - echo "Creating new Elastic Beanstalk Application Version..."
       - VERSION_LABEL="v-$IMAGE_TAG"
-      - aws elasticbeanstalk create-application-version --application-name $EB_APP_NAME --version-label $VERSION_LABEL --source-bundle S3Bucket=$S3_BUCKET,S3Key=$S3_KEY
+      # This line now has || true to prevent crashing if the version exists
+      - aws elasticbeanstalk create-application-version --application-name $EB_APP_NAME --version-label $VERSION_LABEL --source-bundle S3Bucket=$S3_BUCKET,S3Key=$S3_KEY || true
       
       - echo "Deploying to target environment ($TARGET_ENV)..."
       - aws elasticbeanstalk update-environment --environment-name $TARGET_ENV --version-label $VERSION_LABEL
